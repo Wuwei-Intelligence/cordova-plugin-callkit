@@ -70,6 +70,8 @@ public class CordovaCall extends CordovaPlugin {
         return instance;
     }
 
+    private CustomFCMReceiver customFCMReceiver;
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         cordovaInterface = cordova;
@@ -88,7 +90,9 @@ public class CordovaCall extends CordovaPlugin {
           phoneAccount = new PhoneAccount.Builder(handle, appName)
                    .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
                    .build();
-          tm.registerPhoneAccount(phoneAccount);          
+          tm.registerPhoneAccount(phoneAccount);    
+          
+          customFCMReceiver = new CustomFCMReceiver();
         }
         callbackContextMap.put("answer",new ArrayList<CallbackContext>());
         callbackContextMap.put("reject",new ArrayList<CallbackContext>());
