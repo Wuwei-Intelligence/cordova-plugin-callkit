@@ -77,6 +77,7 @@ public class CordovaCall extends CordovaPlugin {
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         cordovaInterface = cordova;
         cordovaWebView = webView;
+        customFCMReceiver = new CustomFCMReceiver();
         super.initialize(cordova, webView);
         appName = getApplicationName(this.cordova.getActivity().getApplicationContext());
         handle = new PhoneAccountHandle(new ComponentName(this.cordova.getActivity().getApplicationContext(),MyConnectionService.class),appName);
@@ -91,9 +92,7 @@ public class CordovaCall extends CordovaPlugin {
           phoneAccount = new PhoneAccount.Builder(handle, appName)
                    .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
                    .build();
-          tm.registerPhoneAccount(phoneAccount);    
-          
-          customFCMReceiver = new CustomFCMReceiver();
+          tm.registerPhoneAccount(phoneAccount);
         }
         callbackContextMap.put("answer",new ArrayList<CallbackContext>());
         callbackContextMap.put("reject",new ArrayList<CallbackContext>());
