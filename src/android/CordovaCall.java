@@ -382,7 +382,7 @@ public class CordovaCall extends CordovaPlugin {
 
             try {
                 // Map<String, String> data = bundleToMap(bundle);
-                // isHandled = inspectAndHandleMessageData(data);
+                receiveCall();
             }catch (Exception e){
                 handleException("onMessageReceived", e);
             }
