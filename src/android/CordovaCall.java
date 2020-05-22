@@ -28,6 +28,7 @@ import android.media.AudioManager;
 
 import com.google.firebase.messaging.RemoteMessage;
 import org.apache.cordova.firebase.FirebasePluginMessageReceiver;
+import android.util.Log;
 
 public class CordovaCall extends CordovaPlugin {
 
@@ -367,7 +368,7 @@ public class CordovaCall extends CordovaPlugin {
 
             try {
                 // Map<String, String> data = remoteMessage.getData();
-                this.receiveCall();
+                receiveCall();
             }catch (Exception e){
                 handleException("onMessageReceived", e);
             }
