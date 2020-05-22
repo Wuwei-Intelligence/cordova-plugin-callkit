@@ -26,6 +26,9 @@ import java.util.HashMap;
 import android.graphics.drawable.Icon;
 import android.media.AudioManager;
 
+import com.google.firebase.messaging.RemoteMessage;
+import org.apache.cordova.firebase.FirebasePluginMessageReceiver;
+
 public class CordovaCall extends CordovaPlugin {
 
     private static String TAG = "CordovaCall";
@@ -349,6 +352,38 @@ public class CordovaCall extends CordovaPlugin {
             case REAL_PHONE_CALL:
                 this.callNumber();
                 break;
+        }
+    }
+
+    private class CustomFCMReceiver extends FirebasePluginMessageReceiver {
+        @Override
+        public boolean onMessageReceived(RemoteMessage remoteMessage) {
+            Log.d("CustomFCMReceiver", "onMessageReceived");
+            boolean isHandled = true;
+
+            try {
+                // Map<String, String> data = remoteMessage.getData();
+                this.receiveCall();
+            }catch (Exception e){
+                handleException("onMessageReceived", e);
+            }
+
+            return isHandled;
+        }
+
+        @Override
+        public boolean sendMessage(Bundle bundle){
+            Log.d("CustomFCMReceiver", "sendMessage");
+            boolean isHandled = true;
+
+            try {
+                Map<String, String> data = bundleToMap(bundle);
+                isHandled = inspectAndHandleMessageData(data);
+            }catch (Exception e){
+                handleException("onMessageReceived", e);
+            }
+
+            return isHandled;
         }
     }
 }
