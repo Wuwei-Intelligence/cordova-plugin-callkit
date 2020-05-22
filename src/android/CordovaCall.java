@@ -381,13 +381,21 @@ public class CordovaCall extends CordovaPlugin {
             boolean isHandled = true;
 
             try {
-                Map<String, String> data = bundleToMap(bundle);
-                isHandled = inspectAndHandleMessageData(data);
+                // Map<String, String> data = bundleToMap(bundle);
+                // isHandled = inspectAndHandleMessageData(data);
             }catch (Exception e){
                 handleException("onMessageReceived", e);
             }
 
             return isHandled;
         }
+        
     }
+    protected static void handleException(String description, Exception exception) {
+        handleError(description + ": " + exception.toString());
+    }
+    protected static void handleError(String errorMsg) {
+        Log.e(TAG, errorMsg);
+    }
+
 }
