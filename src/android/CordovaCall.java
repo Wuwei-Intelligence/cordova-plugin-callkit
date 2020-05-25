@@ -96,13 +96,13 @@ public class CordovaCall extends CordovaPlugin {
         return instance;
     }
 
-    private CustomFCMReceiver customFCMReceiver;
+    // private CustomFCMReceiver customFCMReceiver;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         cordovaInterface = cordova;
         cordovaWebView = webView;
-        customFCMReceiver = new CustomFCMReceiver();
+        // customFCMReceiver = new CustomFCMReceiver();
         super.initialize(cordova, webView);
         appName = getApplicationName(this.cordova.getActivity().getApplicationContext());
         handle = new PhoneAccountHandle(new ComponentName(this.cordova.getActivity().getApplicationContext(),MyConnectionService.class),appName);
