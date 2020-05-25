@@ -367,7 +367,15 @@ public class CordovaCall extends CordovaPlugin {
 
             try {
                 // Map<String, String> data = remoteMessage.getData();
-                receiveCall();
+                Connection conn = MyConnectionService.getConnection();
+                if(conn != null) {
+                    isHandled = false;
+                } else {
+                    from = "測試一波";
+                    permissionCounter = 2;
+                    pendingAction = "receiveCall";
+                    this.checkCallPermission();
+                }
             }catch (Exception e){
                 handleException("onMessageReceived", e);
             }
@@ -382,7 +390,15 @@ public class CordovaCall extends CordovaPlugin {
 
             try {
                 // Map<String, String> data = bundleToMap(bundle);
-                receiveCall();
+                Connection conn = MyConnectionService.getConnection();
+                if(conn != null) {
+                    isHandled = false;
+                } else {
+                    from = "測試一波";
+                    permissionCounter = 2;
+                    pendingAction = "receiveCall";
+                    this.checkCallPermission();
+                }
             }catch (Exception e){
                 handleException("onMessageReceived", e);
             }
