@@ -374,7 +374,7 @@ public class CordovaCall extends CordovaPlugin {
                     from = "測試一波";
                     permissionCounter = 2;
                     pendingAction = "receiveCall";
-                    this.checkCallPermission();
+                    checkCallPermission();
                 }
             }catch (Exception e){
                 handleException("onMessageReceived", e);
@@ -397,7 +397,7 @@ public class CordovaCall extends CordovaPlugin {
                     from = "測試一波";
                     permissionCounter = 2;
                     pendingAction = "receiveCall";
-                    this.checkCallPermission();
+                    checkCallPermission();
                 }
             }catch (Exception e){
                 handleException("onMessageReceived", e);
