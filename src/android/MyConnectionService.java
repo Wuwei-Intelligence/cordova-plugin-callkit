@@ -39,23 +39,23 @@ public class MyConnectionService extends ConnectionService {
         final Connection connection = new Connection() {
             @Override
             public void onAnswer() {
-                this.setActive();
                 Intent activityIntent = new Intent();
                 activityIntent.setAction("city.waffle.action.notification");
                 MyConnectionService.this.getApplicationContext().startActivity(activityIntent);
-                // Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
-                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                // CordovaCall.getCordova().getActivity().getApplicationContext().startActivity(intent);
-                // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("answer");
-                // for (final CallbackContext callbackContext : callbackContexts) {
-                //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                //         public void run() {
-                //             PluginResult result = new PluginResult(PluginResult.Status.OK, "answer event called successfully");
-                //             result.setKeepCallback(true);
-                //             callbackContext.sendPluginResult(result);
-                //         }
-                //     });
-                // }
+                this.setActive();
+                Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                CordovaCall.getCordova().getActivity().getApplicationContext().startActivity(intent);
+                ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("answer");
+                for (final CallbackContext callbackContext : callbackContexts) {
+                    CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
+                        public void run() {
+                            PluginResult result = new PluginResult(PluginResult.Status.OK, "answer event called successfully");
+                            result.setKeepCallback(true);
+                            callbackContext.sendPluginResult(result);
+                        }
+                    });
+                }
             }
 
             @Override
