@@ -17,6 +17,10 @@ import android.net.Uri;
 import java.util.ArrayList;
 import android.util.Log;
 
+//
+import android.app.PendingIntent;
+import android.content.ComponentName;
+
 public class MyConnectionService extends ConnectionService {
 
     private static String TAG = "MyConnectionService";
@@ -36,19 +40,22 @@ public class MyConnectionService extends ConnectionService {
             @Override
             public void onAnswer() {
                 this.setActive();
-                Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                CordovaCall.getCordova().getActivity().getApplicationContext().startActivity(intent);
-                ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("answer");
-                for (final CallbackContext callbackContext : callbackContexts) {
-                    CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                        public void run() {
-                            PluginResult result = new PluginResult(PluginResult.Status.OK, "answer event called successfully");
-                            result.setKeepCallback(true);
-                            callbackContext.sendPluginResult(result);
-                        }
-                    });
-                }
+                Intent activityIntent = new Intent();
+                activityIntent.setAction("com.xylon.startServerApp");
+                MyConnectionService.this.getApplicationContext().startActivity(activityIntent);
+                // Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
+                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                // CordovaCall.getCordova().getActivity().getApplicationContext().startActivity(intent);
+                // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("answer");
+                // for (final CallbackContext callbackContext : callbackContexts) {
+                //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
+                //         public void run() {
+                //             PluginResult result = new PluginResult(PluginResult.Status.OK, "answer event called successfully");
+                //             result.setKeepCallback(true);
+                //             callbackContext.sendPluginResult(result);
+                //         }
+                //     });
+                // }
             }
 
             @Override
@@ -57,16 +64,16 @@ public class MyConnectionService extends ConnectionService {
                 this.setDisconnected(cause);
                 this.destroy();
                 conn = null;
-                ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("reject");
-                for (final CallbackContext callbackContext : callbackContexts) {
-                    CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                        public void run() {
-                            PluginResult result = new PluginResult(PluginResult.Status.OK, "reject event called successfully");
-                            result.setKeepCallback(true);
-                            callbackContext.sendPluginResult(result);
-                        }
-                    });
-                }
+                // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("reject");
+                // for (final CallbackContext callbackContext : callbackContexts) {
+                //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
+                //         public void run() {
+                //             PluginResult result = new PluginResult(PluginResult.Status.OK, "reject event called successfully");
+                //             result.setKeepCallback(true);
+                //             callbackContext.sendPluginResult(result);
+                //         }
+                //     });
+                // }
             }
 
             @Override
@@ -80,16 +87,16 @@ public class MyConnectionService extends ConnectionService {
                 this.setDisconnected(cause);
                 this.destroy();
                 conn = null;
-                ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("hangup");
-                for (final CallbackContext callbackContext : callbackContexts) {
-                    CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                        public void run() {
-                            PluginResult result = new PluginResult(PluginResult.Status.OK, "hangup event called successfully");
-                            result.setKeepCallback(true);
-                            callbackContext.sendPluginResult(result);
-                        }
-                    });
-                }
+                // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("hangup");
+                // for (final CallbackContext callbackContext : callbackContexts) {
+                //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
+                //         public void run() {
+                //             PluginResult result = new PluginResult(PluginResult.Status.OK, "hangup event called successfully");
+                //             result.setKeepCallback(true);
+                //             callbackContext.sendPluginResult(result);
+                //         }
+                //     });
+                // }
             }
         };
         connection.setAddress(Uri.parse(request.getExtras().getString("from")), TelecomManager.PRESENTATION_ALLOWED);
@@ -99,16 +106,18 @@ public class MyConnectionService extends ConnectionService {
             connection.setStatusHints(statusHints);
         }
         conn = connection;
-        ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("receiveCall");
-        for (final CallbackContext callbackContext : callbackContexts) {
-            CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                public void run() {
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, "receiveCall event called successfully");
-                    result.setKeepCallback(true);
-                    callbackContext.sendPluginResult(result);
-                }
-            });
-        }
+        // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("receiveCall");
+        // for (final CallbackContext callbackContext : callbackContexts) {
+        //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
+        //         public void run() {
+        //             PluginResult result = new PluginResult(PluginResult.Status.OK, "receiveCall event called successfully");
+        //             result.setKeepCallback(true);
+        //             callbackContext.sendPluginResult(result);
+        //         }
+        //     });
+        // }
+
+        connection.setAudioModeIsVoip(true);
         return connection;
     }
 

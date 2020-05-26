@@ -30,31 +30,6 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.apache.cordova.firebase.FirebasePluginMessageReceiver;
 import android.util.Log;
 
-
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import androidx.core.app.NotificationCompat;
-import android.util.Log;
-import android.app.Notification;
-import android.text.TextUtils;
-import android.content.ContentResolver;
-import android.graphics.Color;
-
-import com.crashlytics.android.Crashlytics;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
-
-import java.util.Map;
-import java.util.Random;
-
 public class CordovaCall extends CordovaPlugin {
 
     private static String TAG = "CordovaCall";
@@ -96,13 +71,10 @@ public class CordovaCall extends CordovaPlugin {
         return instance;
     }
 
-    private CustomFCMReceiver customFCMReceiver;
-
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         cordovaInterface = cordova;
         cordovaWebView = webView;
-        customFCMReceiver = new CustomFCMReceiver();
         super.initialize(cordova, webView);
         appName = getApplicationName(this.cordova.getActivity().getApplicationContext());
         handle = new PhoneAccountHandle(new ComponentName(this.cordova.getActivity().getApplicationContext(),MyConnectionService.class),appName);
@@ -382,61 +354,6 @@ public class CordovaCall extends CordovaPlugin {
                 this.callNumber();
                 break;
         }
-    }
-
-    private class CustomFCMReceiver extends FirebasePluginMessageReceiver {
-        @Override
-        public boolean onMessageReceived(RemoteMessage remoteMessage) {
-            Log.d("CustomFCMReceiver", "onMessageReceived");
-            boolean isHandled = true;
-
-            try {
-                // Map<String, String> data = remoteMessage.getData();
-                Connection conn = MyConnectionService.getConnection();
-                if(conn != null) {
-                    isHandled = false;
-                } else {
-                    from = "測試一波";
-                    permissionCounter = 2;
-                    pendingAction = "receiveCall";
-                    checkCallPermission();
-                }
-            }catch (Exception e){
-                handleException("onMessageReceived", e);
-            }
-
-            return isHandled;
-        }
-
-        @Override
-        public boolean sendMessage(Bundle bundle){
-            Log.d("CustomFCMReceiver", "sendMessage");
-            boolean isHandled = true;
-
-            try {
-                // Map<String, String> data = bundleToMap(bundle);
-                Connection conn = MyConnectionService.getConnection();
-                if(conn != null) {
-                    isHandled = false;
-                } else {
-                    from = "測試一波";
-                    permissionCounter = 2;
-                    pendingAction = "receiveCall";
-                    checkCallPermission();
-                }
-            }catch (Exception e){
-                handleException("onMessageReceived", e);
-            }
-
-            return isHandled;
-        }
-        
-    }
-    protected static void handleException(String description, Exception exception) {
-        handleError(description + ": " + exception.toString());
-    }
-    protected static void handleError(String errorMsg) {
-        Log.e(TAG, errorMsg);
     }
 
 }

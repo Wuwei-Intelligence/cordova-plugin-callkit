@@ -24,6 +24,14 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 import java.util.Random;
 
+//
+import org.apache.cordova.firebase.FirebasePlugin;
+import org.apache.cordova.firebase.OnNotificationOpenReceiver;
+import android.telecom.PhoneAccountHandle;
+import com.dmarc.cordovacall.MyConnectionService;
+import android.content.ComponentName;
+import android.telecom.TelecomManager;
+
 public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePlugin";
@@ -31,12 +39,9 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
     static final String defaultSmallIconName = "notification_icon";
     static final String defaultLargeIconName = "notification_icon_large";
 
+    private PhoneAccountHandle handle;
+    private TelecomManager tm;
 
-    /**
-     * Called if InstanceID token is updated. This may occur if the security of
-     * the previous token had been compromised. Note that this is called when the InstanceID token
-     * is initially generated so this is where you would retrieve the token.
-     */
     @Override
     public void onNewToken(String refreshedToken) {
         try{
@@ -44,10 +49,9 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
             Log.d(TAG, "Refreshed token: " + refreshedToken);
             FirebasePlugin.sendToken(refreshedToken);
         }catch (Exception e){
-            FirebasePlugin.handleExceptionWithoutContext(e);
+            // FirebasePlugin.handleExceptionWithoutContext(e);
         }
     }
-
 
     /**
      * Called when message is received.
@@ -70,19 +74,6 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
             // and data payloads are treated as notification messages. The Firebase console always sends notification
             // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
             // [END_EXCLUDE]
-
-            // Pass the message to the receiver manager so any registered receivers can decide to handle it
-            boolean wasHandled = FirebasePluginMessageReceiverManager.onMessageReceived(remoteMessage);
-            if (wasHandled) {
-                Log.d(TAG, "Message was handled by a registered receiver");
-
-                // Don't process the message in this method.
-                return;
-            }
-
-            if(FirebasePlugin.applicationContext == null){
-                FirebasePlugin.applicationContext = this.getApplicationContext();
-            }
 
             // TODO(developer): Handle FCM messages here.
             // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
@@ -139,6 +130,8 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
                 if(data.containsKey("notification_android_priority")) priority = data.get("notification_android_priority");
             }
 
+            title = title + "喔齁？？";
+
             if (TextUtils.isEmpty(id)) {
                 Random rand = new Random();
                 int n = rand.nextInt(50) + 1;
@@ -160,11 +153,11 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
 
 
             if (!TextUtils.isEmpty(body) || !TextUtils.isEmpty(title) || (data != null && !data.isEmpty())) {
-                boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback() || foregroundNotification) && (!TextUtils.isEmpty(body) || !TextUtils.isEmpty(title));
+                boolean showNotification = true;
                 sendMessage(remoteMessage, data, messageType, id, title, body, showNotification, sound, vibrate, light, color, icon, channelId, priority, visibility);
             }
         }catch (Exception e){
-            FirebasePlugin.handleExceptionWithoutContext(e);
+            
         }
     }
 
@@ -197,10 +190,6 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
             intent.putExtras(bundle);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            // Channel
-            if(channelId == null || !FirebasePlugin.channelExists(channelId)){
-                channelId = FirebasePlugin.defaultChannelId;
-            }
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                 Log.d(TAG, "Channel ID: "+channelId);
             }
@@ -259,7 +248,6 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
                     }
                 }
             }
-
 
             // Icon
             int defaultSmallIconResID = getResources().getIdentifier(defaultSmallIconName, "drawable", getPackageName());
@@ -335,9 +323,18 @@ public class MyFirebasePluginMessagingService extends FirebaseMessagingService {
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Log.d(TAG, "show notification: "+notification.toString());
             notificationManager.notify(id.hashCode(), notification);
+
+            Bundle callInfo = new Bundle();
+            callInfo.putString("from", "測試打電話2");
+            // handle = new PhoneAccountHandle(new ComponentName(CordovaCall.getCordova().getActivity().getApplicationContext(),MyConnectionService.class), "MyApp");
+            // tm = (TelecomManager) CordovaCall.getCordova().getActivity().getApplicationContext().getSystemService(CordovaCall.getCordova().getActivity().getApplicationContext().TELECOM_SERVICE);
+            handle = new PhoneAccountHandle(new ComponentName(this, MyConnectionService.class), "MyApp");
+            tm = (TelecomManager) this.getSystemService(this.TELECOM_SERVICE);
+            tm.addNewIncomingCall(handle, callInfo);
+            
         }
         // Send to plugin
-        FirebasePlugin.sendMessage(bundle, this.getApplicationContext());
+        // FirebasePlugin.sendMessage(bundle, this.getApplicationContext());
     }
 
     private void putKVInBundle(String k, String v, Bundle b){
