@@ -33,6 +33,13 @@
             </service>
         </config-file>
 
+        <config-file parent="application/activity" target="AndroidManifest.xml">
+            <intent-filter>
+                <action android:name="city.waffle.action.notification" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </config-file>
+
         <source-file src="src/android/CordovaCall.java" target-dir="src/com/dmarc/cordovacall" />
         <source-file src="src/android/MyConnectionService.java" target-dir="src/com/dmarc/cordovacall" />
   </platform>

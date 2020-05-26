@@ -41,7 +41,7 @@ public class MyConnectionService extends ConnectionService {
             public void onAnswer() {
                 this.setActive();
                 Intent activityIntent = new Intent();
-                activityIntent.setAction("city.waffle.rangers.action.notification");
+                activityIntent.setAction("city.waffle.action.notification");
                 MyConnectionService.this.getApplicationContext().startActivity(activityIntent);
                 // Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
                 // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
