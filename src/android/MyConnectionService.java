@@ -44,7 +44,7 @@ public class MyConnectionService extends ConnectionService {
                 this.setActive();
                 //
                 Bundle data = new Bundle();
-                data.putString("messageType", "data");
+                data.putString("messageType", "voip");
                 data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
                 FirebasePlugin.sendMessage(data, MyConnectionService.this.getApplicationContext());
                 //
