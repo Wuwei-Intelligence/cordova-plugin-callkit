@@ -20,6 +20,7 @@ import android.util.Log;
 //
 import android.app.PendingIntent;
 import android.content.ComponentName;
+import org.apache.cordova.firebase.FirebasePlugin;
 
 public class MyConnectionService extends ConnectionService {
 
@@ -39,10 +40,17 @@ public class MyConnectionService extends ConnectionService {
         final Connection connection = new Connection() {
             @Override
             public void onAnswer() {
+                this.destroy();
+                this.setActive();
+                //
+                Bundle data = new Bundle();
+                data.putString("messageType", "data");
+                data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
+                FirebasePlugin.sendMessage(data, MyConnectionService.this.getApplicationContext());
+                //
                 Intent activityIntent = new Intent();
                 activityIntent.setAction("city.waffle.rangers.action.notification");
                 MyConnectionService.this.getApplicationContext().startActivity(activityIntent);
-                this.setActive();
             }
 
             @Override
@@ -51,16 +59,6 @@ public class MyConnectionService extends ConnectionService {
                 this.setDisconnected(cause);
                 this.destroy();
                 conn = null;
-                // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("reject");
-                // for (final CallbackContext callbackContext : callbackContexts) {
-                //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                //         public void run() {
-                //             PluginResult result = new PluginResult(PluginResult.Status.OK, "reject event called successfully");
-                //             result.setKeepCallback(true);
-                //             callbackContext.sendPluginResult(result);
-                //         }
-                //     });
-                // }
             }
 
             @Override
@@ -74,16 +72,6 @@ public class MyConnectionService extends ConnectionService {
                 this.setDisconnected(cause);
                 this.destroy();
                 conn = null;
-                // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("hangup");
-                // for (final CallbackContext callbackContext : callbackContexts) {
-                //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                //         public void run() {
-                //             PluginResult result = new PluginResult(PluginResult.Status.OK, "hangup event called successfully");
-                //             result.setKeepCallback(true);
-                //             callbackContext.sendPluginResult(result);
-                //         }
-                //     });
-                // }
             }
         };
         connection.setAddress(Uri.parse(request.getExtras().getString("from")), TelecomManager.PRESENTATION_ALLOWED);
@@ -93,16 +81,6 @@ public class MyConnectionService extends ConnectionService {
             connection.setStatusHints(statusHints);
         }
         conn = connection;
-        // ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("receiveCall");
-        // for (final CallbackContext callbackContext : callbackContexts) {
-        //     CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-        //         public void run() {
-        //             PluginResult result = new PluginResult(PluginResult.Status.OK, "receiveCall event called successfully");
-        //             result.setKeepCallback(true);
-        //             callbackContext.sendPluginResult(result);
-        //         }
-        //     });
-        // }
 
         connection.setAudioModeIsVoip(true);
         return connection;
