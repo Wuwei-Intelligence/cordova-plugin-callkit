@@ -41,15 +41,16 @@ public class MyConnectionService extends ConnectionService {
             @Override
             public void onAnswer() {
                 this.setActive();
-                this.destroy();
                 //
                 Bundle data = new Bundle();
                 data.putString("messageType", "voip");
                 data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
-                FirebasePlugin.sendMessage(data, MyConnectionService.this.getApplicationContext());
                 //
                 Intent activityIntent = new Intent();
+                activityIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 activityIntent.setAction("city.waffle.rangers.action.notification");
+                //
+                FirebasePlugin.sendMessage(data, MyConnectionService.this.getApplicationContext());
                 MyConnectionService.this.getApplicationContext().startActivity(activityIntent);
             }
 
