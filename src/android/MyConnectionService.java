@@ -40,8 +40,8 @@ public class MyConnectionService extends ConnectionService {
         final Connection connection = new Connection() {
             @Override
             public void onAnswer() {
-                this.destroy();
                 this.setActive();
+                this.destroy();
                 //
                 Bundle data = new Bundle();
                 data.putString("messageType", "voip");
