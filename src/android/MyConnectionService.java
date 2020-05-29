@@ -47,7 +47,7 @@ public class MyConnectionService extends ConnectionService {
                 data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
                 //
                 Intent activityIntent = new Intent();
-                activityIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 activityIntent.setAction("city.waffle.rangers.action.notification");
                 //
                 FirebasePlugin.sendMessage(data, MyConnectionService.this.getApplicationContext());
