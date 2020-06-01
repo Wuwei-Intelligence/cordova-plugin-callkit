@@ -56,10 +56,12 @@ public class MyConnectionService extends ConnectionService {
 
             @Override
             public void onReject() {
-                DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
-                this.setDisconnected(cause);
-                this.destroy();
-                conn = null;
+                if (conn != null) {
+                    DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
+                    this.setDisconnected(cause);
+                    this.destroy();
+                    conn = null;
+                }
             }
 
             @Override
@@ -73,6 +75,18 @@ public class MyConnectionService extends ConnectionService {
                 this.setDisconnected(cause);
                 this.destroy();
                 conn = null;
+                if (CordovaCall.getCordova() != null) {
+                    ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("hangup");
+                    for (final CallbackContext callbackContext : callbackContexts) {
+                        CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
+                            public void run() {
+                                PluginResult result = new PluginResult(PluginResult.Status.OK, "hangup event called successfully");
+                                result.setKeepCallback(true);
+                                callbackContext.sendPluginResult(result);
+                            }
+                        });
+                    }
+                }
             }
         };
         connection.setAddress(Uri.parse(request.getExtras().getString("from")), TelecomManager.PRESENTATION_ALLOWED);
