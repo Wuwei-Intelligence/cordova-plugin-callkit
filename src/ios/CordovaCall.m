@@ -591,12 +591,18 @@ BOOL enableDTMF = NO;
         NSError* error;
         NSDictionary* json = [NSJSONSerialization JSONObjectWithData:[data dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
         
-        NSObject* caller = [json objectForKey:@"Caller"];
-        NSArray* args = [NSArray arrayWithObjects:[caller valueForKey:@"Username"], [caller valueForKey:@"ConnectionId"], nil];
-        
-        CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
-        
-        [self receiveCall:newCommand];
+        NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
+        if (_action != nil) {
+            if ([_action isEqual:@"IncomingCall"]) {
+                NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_body"], nil];
+                CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
+                [self receiveCall:newCommand];
+            }
+            if ([_action isEqual:@"CutOffCall"]) {
+                CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:nil callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
+                [self endCall:newCommand];
+            }
+        }
     }
     @catch (NSException *exception) {
        NSLog(@"[objC] error: %@", exception.reason);
