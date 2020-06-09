@@ -45,6 +45,8 @@ public class MyConnectionService extends ConnectionService {
                 Bundle data = new Bundle();
                 data.putString("messageType", "voip");
                 data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
+                data.putString("session_id", request.getExtras().getString("android_voip_session_id"));
+                data.putString("token", request.getExtras().getString("android_voip_token"));
                 //
                 Intent activityIntent = new Intent();
                 activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
