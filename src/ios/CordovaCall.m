@@ -594,7 +594,7 @@ BOOL enableDTMF = NO;
         NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
         if (_action != nil) {
             if ([_action isEqual:@"IncomingCall"]) {
-                NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_body"], nil];
+                NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_ios_voip_session_id"], nil];
                 CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
                 [self receiveCall:newCommand];
             }
