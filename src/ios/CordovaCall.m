@@ -15,6 +15,7 @@ NSMutableDictionary *callbackIds;
 NSDictionary* pendingCallFromRecents;
 BOOL monitorAudioRouteChange = NO;
 BOOL enableDTMF = NO;
+NSString* incomingCallSessionId = nil;
 
 - (void)pluginInitialize
 {
@@ -498,6 +499,11 @@ BOOL enableDTMF = NO;
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
             }
         } else {
+            // reject call
+            if (incomingCallSessionId != nil) {
+                [self rejectCall:@"https://dev.waffle.city/intercom/test/hangUp"];
+            }
+
             for (id callbackId in callbackIds[@"reject"]) {
                 CDVPluginResult* pluginResult = nil;
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"reject event called successfully"];
@@ -594,6 +600,7 @@ BOOL enableDTMF = NO;
         NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
         if (_action != nil) {
             if ([_action isEqual:@"IncomingCall"]) {
+                incomingCallSessionId = [json objectForKey:@"notification_ios_voip_session_id"];
                 NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_ios_voip_session_id"], nil];
                 CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
                 [self receiveCall:newCommand];
@@ -612,6 +619,43 @@ BOOL enableDTMF = NO;
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
     }
+}
+
+// reject call
+-(void)rejectCall: (NSString *)inputurl
+{
+    //1、创建一个URL
+    NSURL *url = [NSURL URLWithString:inputurl];
+
+    //2、创建请求(Request)对象 这里使用的是它的子类NSMutableURLRequest,因为子类才具有设置方法和设置请求体的属性
+    NSMutableURLRequest *requst = [[NSMutableURLRequest alloc]initWithURL:url];
+    //2.1、设置请求方法
+    requst.HTTPMethod = @"POST";
+    //2.2、设置请求体,因为传入的为Data数据所有这里需要转换
+    requst.HTTPBody = [@"username=LitterL&pwd=123" dataUsingEncoding:NSUTF8StringEncoding];
+    //2.3、设置请求超时时间，如果超过这个时间，请求为失败
+    requst.timeoutInterval = 10;
+
+    //3、发送请求
+
+    /*
+        第一个参数:请求对象
+        第二个参数:队列
+        第三个参数:Block回调函数
+        response:响应头
+        data:响应体信息
+        connectionError:错误信息
+        */
+
+    //发送异步请求(sendAsynchronousRequest)
+    [NSURLConnection sendAsynchronousRequest:requst queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+        NSLog(@"[objC] rejectCall currentThread: %@",[NSThread currentThread]);
+        NSLog(@"[objC] rejectCall incomingCallSessionId 1: %@", incomingCallSessionId);
+        incomingCallSessionId = nil;
+        NSLog(@"[objC] rejectCall incomingCallSessionId 2: %@", incomingCallSessionId);
+        //解析数据
+        NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
+    }];
 }
 
 @end
