@@ -38,6 +38,9 @@ public class MyConnectionService extends ConnectionService {
     @Override
     public Connection onCreateIncomingConnection(final PhoneAccountHandle connectionManagerPhoneAccount, final ConnectionRequest request) {
         final Connection connection = new Connection() {
+
+            private String _sessionId;
+
             @Override
             public void onAnswer() {
                 this.setActive();
@@ -45,7 +48,9 @@ public class MyConnectionService extends ConnectionService {
                 Bundle data = new Bundle();
                 data.putString("messageType", "voip");
                 data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
+                data.putString("action", "IncomingCall");
                 data.putString("session_id", request.getExtras().getString("android_voip_session_id"));
+                _sessionId = request.getExtras().getString("android_voip_session_id");
                 data.putString("token", request.getExtras().getString("android_voip_token"));
                 //
                 Intent activityIntent = new Intent();
@@ -59,6 +64,7 @@ public class MyConnectionService extends ConnectionService {
             @Override
             public void onReject() {
                 if (conn != null) {
+                    new HttpURLConnectionPost().execute("https://dev.waffle.city/intercom/test/hangUp"); 
                     DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
                     this.setDisconnected(cause);
                     this.destroy();
