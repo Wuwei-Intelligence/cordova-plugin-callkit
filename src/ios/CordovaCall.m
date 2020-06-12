@@ -602,6 +602,7 @@ NSString* rejectUrl;
         if (_action != nil) {
 
             // rejectUrl
+            // rejectUrl = [json objectForKey:@"notification_ios_voip_reject_url"];
             rejectUrl = @"https://dev.waffle.city/intercom/v1/communities/test/reject";
 
             if ([_action isEqual:@"IncomingCall"]) {
@@ -638,6 +639,7 @@ NSString* rejectUrl;
     [NSURLConnection sendAsynchronousRequest:requst queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
         NSLog(@"[objC] rejectCall currentThread: %@",[NSThread currentThread]);
         incomingCallSessionId = nil;
+        rejectUrl = nil;
         //解析数据
         NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
     }];
