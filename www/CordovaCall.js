@@ -94,3 +94,7 @@ exports.on = function(e, f) {
     };
     exec(success, error, "CordovaCall", "registerEvent", [e]);
 };
+
+exports.setRejectUrl = function(url, success, error) {
+  exec(success, error, "CordovaCall", "setRejectUrl", [url]);
+};

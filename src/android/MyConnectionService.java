@@ -26,6 +26,7 @@ public class MyConnectionService extends ConnectionService {
 
     private static String TAG = "MyConnectionService";
     private static Connection conn;
+    private static String rejectUrl;
 
     public static Connection getConnection() {
         return conn;
@@ -33,6 +34,10 @@ public class MyConnectionService extends ConnectionService {
 
     public static void deinitConnection() {
         conn = null;
+    }
+
+    public static void setRejectUrl(String _url) {
+        rejectUrl = _url;
     }
 
     @Override
@@ -61,7 +66,8 @@ public class MyConnectionService extends ConnectionService {
             @Override
             public void onReject() {
                 String sessionid = request.getExtras().getString("android_voip_session_id");
-                new HttpURLConnectionPost().execute("https://dev.waffle.city/intercom/v1/communities/test/reject", sessionid); 
+                // "https://dev.waffle.city/intercom/v1/communities/test/reject"
+                new HttpURLConnectionPost().execute(rejectUrl, sessionid); 
                 DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
                 this.setDisconnected(cause);
                 this.destroy();

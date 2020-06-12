@@ -16,6 +16,7 @@ NSDictionary* pendingCallFromRecents;
 BOOL monitorAudioRouteChange = NO;
 BOOL enableDTMF = NO;
 NSString* incomingCallSessionId = nil;
+NSString* rejectUrl;
 
 - (void)pluginInitialize
 {
@@ -501,7 +502,7 @@ NSString* incomingCallSessionId = nil;
         } else {
             // reject call
             if (incomingCallSessionId != nil) {
-                [self rejectCall:@"https://dev.waffle.city/intercom/test/hangUp"];
+                [self rejectCall:rejectUrl];
             }
 
             for (id callbackId in callbackIds[@"reject"]) {
@@ -656,6 +657,14 @@ NSString* incomingCallSessionId = nil;
         //解析数据
         NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
     }];
+}
+
+- (void)setRejectUrl:(CDVInvokedUrlCommand*)command
+{
+    CDVPluginResult* pluginResult = nil;
+    rejectUrl = [command.arguments objectAtIndex:0];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"successfully"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end
