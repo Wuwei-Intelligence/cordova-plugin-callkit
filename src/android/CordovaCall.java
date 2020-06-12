@@ -243,8 +243,6 @@ public class CordovaCall extends CordovaPlugin {
               this.callbackContext.error("Call Failed. You need to enter a phone number.");
             }
             return true;
-        } else if (action.equals("setRejectUrl")) {
-            MyConnectionService.setRejectUrl(args.getString(0));
         }
         return false;
     }
