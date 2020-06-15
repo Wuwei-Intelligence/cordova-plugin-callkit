@@ -602,7 +602,7 @@ NSString* rejectUrl;
         if (_action != nil) {
 
             // rejectUrl
-            // rejectUrl = [json objectForKey:@"notification_ios_voip_reject_url"];
+            // rejectUrl = [json objectForKey:@"notification_ios_voip_callback_url"];
             rejectUrl = @"https://dev.waffle.city/intercom/v1/communities/test/reject";
 
             if ([_action isEqual:@"IncomingCall"]) {

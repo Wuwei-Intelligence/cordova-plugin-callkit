@@ -61,7 +61,7 @@ public class MyConnectionService extends ConnectionService {
             @Override
             public void onReject() {
                 String sessionid = request.getExtras().getString("android_voip_session_id");
-                String reject_url = request.getExtras().getString("android_voip_reject_url");
+                String reject_url = request.getExtras().getString("android_voip_callback_url");
                 new HttpURLConnectionPost().execute("https://dev.waffle.city/intercom/v1/communities/test/reject", sessionid);
  
                 DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
