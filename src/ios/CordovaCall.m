@@ -601,9 +601,7 @@ NSString* rejectUrl;
         NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
         if (_action != nil) {
 
-            // rejectUrl
-            // rejectUrl = [json objectForKey:@"notification_ios_voip_callback_url"];
-            rejectUrl = @"https://dev.waffle.city/intercom/v1/communities/test/reject";
+            rejectUrl = [json objectForKey:@"notification_ios_voip_callback_url"];
 
             if ([_action isEqual:@"IncomingCall"]) {
                 incomingCallSessionId = [json objectForKey:@"notification_ios_voip_session_id"];
@@ -630,19 +628,23 @@ NSString* rejectUrl;
 // reject call
 -(void)rejectCall: (NSString *)inputurl
 {
-    NSURL *url = [NSURL URLWithString:inputurl];
-    NSMutableURLRequest *requst = [[NSMutableURLRequest alloc]initWithURL:url];
-    requst.HTTPMethod = @"POST";
-    requst.HTTPBody = [[NSString stringWithFormat:@"session_id=%@", incomingCallSessionId] dataUsingEncoding:NSUTF8StringEncoding];
-    requst.timeoutInterval = 10;
+    @try {
+        NSURL *url = [NSURL URLWithString:inputurl];
+        NSMutableURLRequest *requst = [[NSMutableURLRequest alloc]initWithURL:url];
+        requst.HTTPMethod = @"POST";
+        requst.HTTPBody = [[NSString stringWithFormat:@"session_id=%@", incomingCallSessionId] dataUsingEncoding:NSUTF8StringEncoding];
+        requst.timeoutInterval = 10;
 
-    [NSURLConnection sendAsynchronousRequest:requst queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-        NSLog(@"[objC] rejectCall currentThread: %@",[NSThread currentThread]);
-        incomingCallSessionId = nil;
-        rejectUrl = nil;
-        //解析数据
-        NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
-    }];
+        [NSURLConnection sendAsynchronousRequest:requst queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+            incomingCallSessionId = nil;
+            rejectUrl = nil;
+            NSLog(@"[objC] rejectCall currentThread: %@",[NSThread currentThread]);
+            NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
+        }];
+    }
+    @catch (NSException *exception) {
+       NSLog(@"[objC] rejectCall error: %@", exception.reason);
+    }
 }
 
 @end
