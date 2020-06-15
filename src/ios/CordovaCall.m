@@ -16,6 +16,8 @@ NSDictionary* pendingCallFromRecents;
 BOOL monitorAudioRouteChange = NO;
 BOOL enableDTMF = NO;
 NSString* incomingCallSessionId = nil;
+NSString* pickupUrl;
+NSString* hangupUrl;
 NSString* rejectUrl;
 
 - (void)pluginInitialize
@@ -601,7 +603,9 @@ NSString* rejectUrl;
         NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
         if (_action != nil) {
 
-            rejectUrl = [json objectForKey:@"notification_ios_voip_callback_url"];
+            pickupUrl = [json objectForKey:@"notification_ios_voip_callback_pickup_url"];
+            hangupUrl = [json objectForKey:@"notification_ios_voip_callback_hangup_url"];
+            rejectUrl = [json objectForKey:@"notification_ios_voip_callback_reject_url"];
 
             if ([_action isEqual:@"IncomingCall"]) {
                 incomingCallSessionId = [json objectForKey:@"notification_ios_voip_session_id"];

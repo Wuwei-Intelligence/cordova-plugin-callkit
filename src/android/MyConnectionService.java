@@ -61,7 +61,7 @@ public class MyConnectionService extends ConnectionService {
             @Override
             public void onReject() {
                 String sessionid = request.getExtras().getString("android_voip_session_id");
-                String reject_url = request.getExtras().getString("android_voip_callback_url");
+                String reject_url = request.getExtras().getString("android_voip_callback_reject_url");
                 new HttpURLConnectionPost().execute(reject_url, sessionid);
  
                 DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
