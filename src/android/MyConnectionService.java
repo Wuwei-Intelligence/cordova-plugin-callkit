@@ -49,6 +49,9 @@ public class MyConnectionService extends ConnectionService {
                 data.putString("action", "IncomingCall");
                 data.putString("session_id", request.getExtras().getString("android_voip_session_id"));
                 data.putString("token", request.getExtras().getString("android_voip_token"));
+                data.putString("pickup_url", request.getExtras().getString("android_voip_callback_pickup_url"));
+                data.putString("hangup_url", request.getExtras().getString("android_voip_callback_hangup_url"));
+                data.putString("reject_url", request.getExtras().getString("android_voip_callback_reject_url"));
                 //
                 Intent activityIntent = new Intent();
                 activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
