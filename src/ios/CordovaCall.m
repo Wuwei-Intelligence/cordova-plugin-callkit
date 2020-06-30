@@ -614,6 +614,7 @@ NSString* rejectUrl;
                 [self receiveCall:newCommand];
             }
             if ([_action isEqual:@"CutOffCall"]) {
+                incomingCallSessionId = nil;
                 CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:nil callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
                 [self endCall:newCommand];
             }
