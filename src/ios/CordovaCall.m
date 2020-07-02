@@ -15,10 +15,11 @@ NSMutableDictionary *callbackIds;
 NSDictionary* pendingCallFromRecents;
 BOOL monitorAudioRouteChange = NO;
 BOOL enableDTMF = NO;
-NSString* incomingCallSessionId = nil;
+
 NSString* pickupUrl;
 NSString* hangupUrl;
 NSString* rejectUrl;
+NSMutableDictionary *callsDictionary;
 
 - (void)pluginInitialize
 {
@@ -188,28 +189,39 @@ NSString* rejectUrl;
     }
 
     if (callName != nil && [callName length] > 0) {
-        CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callId];
-        CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
-        callUpdate.remoteHandle = handle;
-        callUpdate.hasVideo = hasVideo;
-        callUpdate.localizedCallerName = callName;
-        callUpdate.supportsGrouping = NO;
-        callUpdate.supportsUngrouping = NO;
-        callUpdate.supportsHolding = NO;
-        callUpdate.supportsDTMF = enableDTMF;
+        if (callsDictionary == nil && [command.arguments objectAtIndex:2]) {
+            // 儲存本APP撥號的callUUID
+            callsDictionary = [[NSMutableDictionary alloc] init];
+            NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
+            [data setObject:@"Yes" forKey:@"needReject"];
+            [data setObject:[command.arguments objectAtIndex:2] forKey:@"notificationData"];
+            [callsDictionary setObject:data forKey:callUUID.UUIDString];
 
-        [self.provider reportNewIncomingCallWithUUID:callUUID update:callUpdate completion:^(NSError * _Nullable error) {
-            if(error == nil) {
-                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Incoming call successful"] callbackId:command.callbackId];
-            } else {
-                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]] callbackId:command.callbackId];
+            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callId];
+            CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
+            callUpdate.remoteHandle = handle;
+            callUpdate.hasVideo = hasVideo;
+            callUpdate.localizedCallerName = callName;
+            callUpdate.supportsGrouping = NO;
+            callUpdate.supportsUngrouping = NO;
+            callUpdate.supportsHolding = NO;
+            callUpdate.supportsDTMF = enableDTMF;
+
+            [self.provider reportNewIncomingCallWithUUID:callUUID update:callUpdate completion:^(NSError * _Nullable error) {
+                if(error == nil) {
+                    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Incoming call successful"] callbackId:command.callbackId];
+                } else {
+                    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]] callbackId:command.callbackId];
+                }
+            }];
+            for (id callbackId in callbackIds[@"receiveCall"]) {
+                CDVPluginResult* pluginResult = nil;
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"receiveCall event called successfully"];
+                [pluginResult setKeepCallbackAsBool:YES];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
             }
-        }];
-        for (id callbackId in callbackIds[@"receiveCall"]) {
-            CDVPluginResult* pluginResult = nil;
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"receiveCall event called successfully"];
-            [pluginResult setKeepCallbackAsBool:YES];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        } else {
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Caller is calling"] callbackId:command.callbackId];
         }
     } else {
         [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Caller id can't be empty"] callbackId:command.callbackId];
@@ -229,18 +241,26 @@ NSString* rejectUrl;
     }
 
     if (callName != nil && [callName length] > 0) {
-        CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callId];
-        CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
-        startCallAction.contactIdentifier = callName;
-        startCallAction.video = hasVideo;
-        CXTransaction *transaction = [[CXTransaction alloc] initWithAction:startCallAction];
-        [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
-            if (error == nil) {
-                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Outgoing call successful"] callbackId:command.callbackId];
-            } else {
-                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]] callbackId:command.callbackId];
-            }
-        }];
+        if (callsDictionary == nil) {
+            // 儲存本APP撥號的callUUID
+            callsDictionary = [[NSMutableDictionary alloc] init];
+            NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
+            [data setObject:@"No" forKey:@"needReject"];
+            [callsDictionary setObject:data forKey:callUUID];
+
+            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callId];
+            CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
+            startCallAction.contactIdentifier = callName;
+            startCallAction.video = hasVideo;
+            CXTransaction *transaction = [[CXTransaction alloc] initWithAction:startCallAction];
+            [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+                if (error == nil) {
+                    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Outgoing call successful"] callbackId:command.callbackId];
+                } else {
+                    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]] callbackId:command.callbackId];
+                }
+            }];
+        }
     } else {
         [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The caller id can't be empty"] callbackId:command.callbackId];
     }
@@ -264,24 +284,23 @@ NSString* rejectUrl;
 - (void)endCall:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
-    NSArray<CXCall *> *calls = self.callController.callObserver.calls;
-
-    if([calls count] == 1) {
-        //[self.provider reportCallWithUUID:calls[0].UUID endedAtDate:nil reason:CXCallEndedReasonRemoteEnded];
-        CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:calls[0].UUID];
-        CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
-        [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
-            if (error == nil) {
-            } else {
-                NSLog(@"%@",[error localizedDescription]);
-            }
-        }];
+    if (callsDictionary != nil) {
+        for (NSString* _uuid in callsDictionary) {
+            NSUUID *obj_uuid = [[NSUUID alloc] initWithUUIDString:_uuid];
+            CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:obj_uuid];
+            CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
+            [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+                if (error == nil) {
+                } else {
+                    NSLog(@"%@",[error localizedDescription]);
+                }
+            }];
+        }
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Call ended successfully"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No call exists for you to connect"];
     }
-
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)registerEvent:(CDVInvokedUrlCommand*)command
@@ -481,6 +500,7 @@ NSString* rejectUrl;
 {
     [self setupAudioSession];
     [action fulfill];
+    NSLog(@"[david] test answer");
     for (id callbackId in callbackIds[@"answer"]) {
         CDVPluginResult* pluginResult = nil;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"answer event called successfully"];
@@ -493,26 +513,46 @@ NSString* rejectUrl;
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action
 {
     NSArray<CXCall *> *calls = self.callController.callObserver.calls;
-    if([calls count] == 1) {
-        if(calls[0].hasConnected) {
-            for (id callbackId in callbackIds[@"hangup"]) {
-                CDVPluginResult* pluginResult = nil;
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"hangup event called successfully"];
-                [pluginResult setKeepCallbackAsBool:YES];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-            }
-        } else {
-            // reject call
-            if (incomingCallSessionId != nil) {
-                [self rejectCall:rejectUrl];
-            }
+    for (CXCall* _call in calls) {
+        NSLog(@"[david] performEndCallAction");
+        NSLog(@"%@", action.callUUID);
+        NSLog(@"%@", _call.UUID);
+        if ([action.callUUID.UUIDString isEqualToString:_call.UUID.UUIDString]) {
+            if(_call.hasConnected) {
+                NSLog(@"[david] hangup");
+                for (id callbackId in callbackIds[@"hangup"]) {
+                    CDVPluginResult* pluginResult = nil;
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"hangup event called successfully"];
+                    [pluginResult setKeepCallbackAsBool:YES];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                }
+            } else {
+                NSLog(@"[david] reject");
+                NSDictionary* _data = [callsDictionary objectForKey:action.callUUID.UUIDString];
+                NSLog(@"%@", _data);
+                if (_data != nil) {
+                    NSLog(@"[david] reject has data");
+                    NSString* _reject = [_data objectForKey:@"needReject"];
+                    NSLog(@"%@", _reject);
+                    NSDictionary* _notificationData = [_data objectForKey:@"notificationData"];
+                    if ([_reject isEqualToString:@"Yes"] && _notificationData != nil) {
+                        [self rejectCall:[_notificationData objectForKey:@"notification_ios_voip_callback_reject_url"] sessionId: [_notificationData objectForKey:@"notification_ios_voip_session_id"]];
+                    }
+                }
 
-            for (id callbackId in callbackIds[@"reject"]) {
-                CDVPluginResult* pluginResult = nil;
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"reject event called successfully"];
-                [pluginResult setKeepCallbackAsBool:YES];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                for (id callbackId in callbackIds[@"reject"]) {
+                    CDVPluginResult* pluginResult = nil;
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"reject event called successfully"];
+                    [pluginResult setKeepCallbackAsBool:YES];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                }
             }
+            [callsDictionary removeObjectForKey:_call.UUID.UUIDString];
+            if ([callsDictionary allKeys].count == 0) {
+                NSLog(@"[david] reset callsDictionary");
+                callsDictionary = nil;
+            }
+            break;
         }
     }
     monitorAudioRouteChange = NO;
@@ -608,15 +648,22 @@ NSString* rejectUrl;
             rejectUrl = [json objectForKey:@"notification_ios_voip_callback_reject_url"];
 
             if ([_action isEqual:@"IncomingCall"]) {
-                incomingCallSessionId = [json objectForKey:@"notification_ios_voip_session_id"];
-                NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_ios_voip_session_id"], nil];
+                NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_ios_voip_session_id"], json, nil];
                 CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
                 [self receiveCall:newCommand];
             }
             if ([_action isEqual:@"CutOffCall"]) {
-                incomingCallSessionId = nil;
-                CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:nil callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
-                [self endCall:newCommand];
+                for (NSString* _uuid in callsDictionary) {
+                    NSMutableDictionary* _data = [callsDictionary objectForKey:_uuid];
+                    NSMutableDictionary* _notificationData = [_data objectForKey:@"notificationData"];
+                    NSString* _session_id = [_notificationData objectForKey:@"notification_ios_voip_session_id"];
+                    if ([_session_id isEqualToString:[json objectForKey:@"notification_ios_voip_session_id"]]) {
+                        [_data setObject:@"No" forKey:@"needReject"];
+                        CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:nil callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
+                        [self endCall:newCommand];
+                        break;
+                    }
+                }
             }
         }
     }
@@ -631,18 +678,17 @@ NSString* rejectUrl;
 }
 
 // reject call
--(void)rejectCall: (NSString *)inputurl
+-(void)rejectCall: (NSString *)inputurl sessionId:(NSString *)sessionId
 {
+    NSLog(@"API rejectCall");
     @try {
         NSURL *url = [NSURL URLWithString:inputurl];
         NSMutableURLRequest *requst = [[NSMutableURLRequest alloc]initWithURL:url];
         requst.HTTPMethod = @"POST";
-        requst.HTTPBody = [[NSString stringWithFormat:@"session_id=%@", incomingCallSessionId] dataUsingEncoding:NSUTF8StringEncoding];
+        requst.HTTPBody = [[NSString stringWithFormat:@"session_id=%@", sessionId] dataUsingEncoding:NSUTF8StringEncoding];
         requst.timeoutInterval = 10;
 
         [NSURLConnection sendAsynchronousRequest:requst queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-            incomingCallSessionId = nil;
-            rejectUrl = nil;
             NSLog(@"[objC] rejectCall currentThread: %@",[NSThread currentThread]);
             NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
         }];
