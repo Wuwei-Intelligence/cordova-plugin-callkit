@@ -30,6 +30,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.apache.cordova.firebase.FirebasePluginMessageReceiver;
 import android.util.Log;
 
+import org.json.JSONObject;
+
 public class CordovaCall extends CordovaPlugin {
 
     private static String TAG = "CordovaCall";
