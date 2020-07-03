@@ -690,12 +690,14 @@ NSMutableDictionary *callsDictionary;
 
 - (void)isEnabledPhoneAccount:(CDVInvokedUrlCommand*)command
 {
+    CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:true];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)openSettingPhoneAccount:(CDVInvokedUrlCommand*)command
 {
+    CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:true];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
