@@ -86,6 +86,14 @@ exports.callNumber = function(to, success, error) {
     exec(success, error, "CordovaCall", "callNumber", [to]);
 };
 
+exports.isEnabledPhoneAccount = function(success, error) {
+  exec(success, error, "CordovaCall", "isEnabledPhoneAccount");
+};
+
+exports.openSettingPhoneAccount = function(success, error) {
+  exec(success, error, "CordovaCall", "openSettingPhoneAccount");
+};
+
 exports.on = function(e, f) {
     var success = function(message) {
       f(message);

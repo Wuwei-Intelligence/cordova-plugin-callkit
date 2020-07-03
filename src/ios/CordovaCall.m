@@ -500,7 +500,6 @@ NSMutableDictionary *callsDictionary;
 {
     [self setupAudioSession];
     [action fulfill];
-    NSLog(@"[david] test answer");
     for (id callbackId in callbackIds[@"answer"]) {
         CDVPluginResult* pluginResult = nil;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"answer event called successfully"];
@@ -514,12 +513,8 @@ NSMutableDictionary *callsDictionary;
 {
     NSArray<CXCall *> *calls = self.callController.callObserver.calls;
     for (CXCall* _call in calls) {
-        NSLog(@"[david] performEndCallAction");
-        NSLog(@"%@", action.callUUID);
-        NSLog(@"%@", _call.UUID);
         if ([action.callUUID.UUIDString isEqualToString:_call.UUID.UUIDString]) {
             if(_call.hasConnected) {
-                NSLog(@"[david] hangup");
                 for (id callbackId in callbackIds[@"hangup"]) {
                     CDVPluginResult* pluginResult = nil;
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"hangup event called successfully"];
@@ -527,13 +522,9 @@ NSMutableDictionary *callsDictionary;
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
                 }
             } else {
-                NSLog(@"[david] reject");
                 NSDictionary* _data = [callsDictionary objectForKey:action.callUUID.UUIDString];
-                NSLog(@"%@", _data);
                 if (_data != nil) {
-                    NSLog(@"[david] reject has data");
                     NSString* _reject = [_data objectForKey:@"needReject"];
-                    NSLog(@"%@", _reject);
                     NSDictionary* _notificationData = [_data objectForKey:@"notificationData"];
                     if ([_reject isEqualToString:@"Yes"] && _notificationData != nil) {
                         [self rejectCall:[_notificationData objectForKey:@"notification_ios_voip_callback_reject_url"] sessionId: [_notificationData objectForKey:@"notification_ios_voip_session_id"]];
@@ -549,7 +540,6 @@ NSMutableDictionary *callsDictionary;
             }
             [callsDictionary removeObjectForKey:_call.UUID.UUIDString];
             if ([callsDictionary allKeys].count == 0) {
-                NSLog(@"[david] reset callsDictionary");
                 callsDictionary = nil;
             }
             break;
@@ -677,7 +667,7 @@ NSMutableDictionary *callsDictionary;
     }
 }
 
-// reject call
+// Waffle Custom
 -(void)rejectCall: (NSString *)inputurl sessionId:(NSString *)sessionId
 {
     NSLog(@"API rejectCall");
@@ -696,6 +686,18 @@ NSMutableDictionary *callsDictionary;
     @catch (NSException *exception) {
        NSLog(@"[objC] rejectCall error: %@", exception.reason);
     }
+}
+
+- (void)isEnabledPhoneAccount:(CDVInvokedUrlCommand*)command
+{
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:true];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)openSettingPhoneAccount:(CDVInvokedUrlCommand*)command
+{
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:true];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end
