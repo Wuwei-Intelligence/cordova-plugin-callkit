@@ -50,6 +50,7 @@ public class CordovaCall extends CordovaPlugin {
     private static CordovaWebView cordovaWebView;
     private static Icon icon;
     private static CordovaCall instance;
+    private static final String KEY_RESULT_PERMISSION = "hasPermission";
 
     public static HashMap<String, ArrayList<CallbackContext>> getCallbackContexts() {
         return callbackContextMap;
@@ -251,11 +252,13 @@ public class CordovaCall extends CordovaPlugin {
         } else if (action.equals("isEnabledPhoneAccount")) {
             try {
                 PhoneAccount currentPhoneAccount = tm.getPhoneAccount(handle);
+                JSONObject returnObj = new JSONObject();
                 if (currentPhoneAccount.isEnabled()) {
-                    this.callbackContext.success(true);
+                    addProperty(returnObj, KEY_RESULT_PERMISSION, true);
                 } else {
-                    this.callbackContext.success(false);
+                    addProperty(returnObj, KEY_RESULT_PERMISSION, false);
                 }
+                this.callbackContext.success(returnObj);
             } catch (Exception e) {
                 this.callbackContext.error("check error");
             }
@@ -264,7 +267,7 @@ public class CordovaCall extends CordovaPlugin {
                 Intent phoneIntent = new Intent(TelecomManager.ACTION_CHANGE_PHONE_ACCOUNTS);
                 phoneIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 this.cordova.getActivity().getApplicationContext().startActivity(phoneIntent);
-                this.callbackContext.success(false);
+                this.callbackContext.success("opening");
             } catch (Exception e) {
                 this.callbackContext.error("Open Failed");
             }
