@@ -257,7 +257,7 @@ public class CordovaCall extends CordovaPlugin {
                     this.callbackContext.success(false);
                 }
             } catch (Exception e) {
-                this.callbackContext.error(e);
+                this.callbackContext.error("check error");
             }
         } else if (action.equals("openSettingPhoneAccount")) {
             try {
@@ -266,7 +266,7 @@ public class CordovaCall extends CordovaPlugin {
                 this.cordova.getActivity().getApplicationContext().startActivity(phoneIntent);
                 this.callbackContext.success(false);
             } catch (Exception e) {
-                this.callbackContext.error(e);
+                this.callbackContext.error("Open Failed");
             }
         }
         return false;
