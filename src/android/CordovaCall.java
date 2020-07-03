@@ -389,4 +389,16 @@ public class CordovaCall extends CordovaPlugin {
         }
     }
 
+    private void addProperty(JSONObject obj, String key, Object value) {
+        try {
+            if (value == null) {
+                obj.put(key, JSONObject.NULL);
+            } else {
+                obj.put(key, value);
+            }
+        } catch (JSONException ignored) {
+            //Believe exception only occurs when adding duplicate keys, so just ignore it
+        }
+    }
+
 }
