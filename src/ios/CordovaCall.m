@@ -246,7 +246,7 @@ NSMutableDictionary *callsDictionary;
             callsDictionary = [[NSMutableDictionary alloc] init];
             NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
             [data setObject:@"No" forKey:@"needReject"];
-            [callsDictionary setObject:data forKey:callUUID];
+            [callsDictionary setObject:data forKey:callUUID.UUIDString];
 
             CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callId];
             CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
