@@ -163,6 +163,7 @@ public class MyConnectionService extends ConnectionService {
         }
         connection.setDialing();
         conn = connection;
+        connection.setAudioModeIsVoip(true);
         ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("sendCall");
         if(callbackContexts != null) {
             for (final CallbackContext callbackContext : callbackContexts) {
