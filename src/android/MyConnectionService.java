@@ -74,9 +74,7 @@ public class MyConnectionService extends ConnectionService {
             }
 
             @Override
-            public void onAbort() {
-                super.onAbort();
-            }
+            public void onAbort() { }
 
             @Override
             public void onDisconnect() {
@@ -114,19 +112,13 @@ public class MyConnectionService extends ConnectionService {
     public Connection onCreateOutgoingConnection(PhoneAccountHandle connectionManagerPhoneAccount, ConnectionRequest request) {
         final Connection connection = new Connection() {
             @Override
-            public void onAnswer() {
-                super.onAnswer();
-            }
+            public void onAnswer() { }
 
             @Override
-            public void onReject() {
-                super.onReject();
-            }
+            public void onReject() { }
 
             @Override
-            public void onAbort() {
-                super.onAbort();
-            }
+            public void onAbort() { }
 
             @Override
             public void onDisconnect() {
@@ -134,31 +126,33 @@ public class MyConnectionService extends ConnectionService {
                 this.setDisconnected(cause);
                 this.destroy();
                 conn = null;
-                ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("hangup");
-                for (final CallbackContext callbackContext : callbackContexts) {
-                    CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                        public void run() {
-                            PluginResult result = new PluginResult(PluginResult.Status.OK, "hangup event called successfully");
-                            result.setKeepCallback(true);
-                            callbackContext.sendPluginResult(result);
-                        }
-                    });
+                if (CordovaCall.getCordova() != null) {
+                    ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("hangup");
+                    for (final CallbackContext callbackContext : callbackContexts) {
+                        CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
+                            public void run() {
+                                PluginResult result = new PluginResult(PluginResult.Status.OK, "hangup event called successfully");
+                                result.setKeepCallback(true);
+                                callbackContext.sendPluginResult(result);
+                            }
+                        });
+                    }
                 }
             }
 
             @Override
             public void onStateChanged(int state) {
-              if(state == Connection.STATE_DIALING) {
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        CordovaCall.getCordova().getActivity().getApplicationContext().startActivity(intent);
-                    }
-                }, 500);
-              }
+            //   if(state == Connection.STATE_DIALING) {
+            //     final Handler handler = new Handler();
+            //     handler.postDelayed(new Runnable() {
+            //         @Override
+            //         public void run() {
+            //             Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
+            //             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            //             CordovaCall.getCordova().getActivity().getApplicationContext().startActivity(intent);
+            //         }
+            //     }, 500);
+            //   }
             }
         };
         connection.setAddress(Uri.parse(request.getExtras().getString("to")), TelecomManager.PRESENTATION_ALLOWED);
