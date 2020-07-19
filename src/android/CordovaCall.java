@@ -129,26 +129,8 @@ public class CordovaCall extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("sendCall")) {
-            Connection conn = MyConnectionService.getConnection();
-            if (conn != null) {
-                if (conn.getState() == Connection.STATE_ACTIVE) {
-                    this.callbackContext.error("You can't make a call right now because you're already in a call");
-                } else if (conn.getState() == Connection.STATE_DIALING) {
-                    this.callbackContext
-                            .error("You can't make a call right now because you're already trying to make a call");
-                } else {
-                    this.callbackContext.error("You can't make a call right now");
-                }
-            } else {
-                to = args.getString(0);
-                permissionCounter = 2;
-                pendingAction = "sendCall";
-                this.checkCallPermission();
-                /*
-                 * cordova.getThreadPool().execute(new Runnable() { public void run() {
-                 * getCallPhonePermission(); } });
-                 */
-            }
+            MyConnectionService.setIsSendCall(true);
+            this.callbackContext.success("Outgoing call successful");
             return true;
         } else if (action.equals("connectCall")) {
             Connection conn = MyConnectionService.getConnection();
@@ -166,6 +148,8 @@ public class CordovaCall extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("endCall")) {
+            Boolean isSendCall = MyConnectionService.getIsSendCall();
+            if (isSendCall) MyConnectionService.setIsSendCall(false);
             Connection conn = MyConnectionService.getConnection();
             if (conn == null) {
                 this.callbackContext.error("No call exists for you to end");

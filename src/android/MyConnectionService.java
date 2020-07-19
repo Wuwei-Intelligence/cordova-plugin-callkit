@@ -26,6 +26,7 @@ public class MyConnectionService extends ConnectionService {
 
     private static String TAG = "MyConnectionService";
     private static Connection conn;
+    private static Boolean isSendCall = false;
 
     public static Connection getConnection() {
         return conn;
@@ -33,6 +34,14 @@ public class MyConnectionService extends ConnectionService {
 
     public static void deinitConnection() {
         conn = null;
+    }
+
+    public static Boolean getIsSendCall() {
+        return isSendCall;
+    }
+
+    public static void setIsSendCall(boolean val) {
+        isSendCall = val;
     }
 
     @Override
