@@ -615,15 +615,11 @@ NSMutableDictionary *callsDictionary;
 {
     NSDictionary *payloadDict = payload.dictionaryPayload[@"aps"];
     NSLog(@"[objC] didReceiveIncomingPushWithPayload: %@", payloadDict);
-
-    NSString *message = payloadDict[@"alert"];
-    NSLog(@"[objC] received VoIP message: %@", message);
     
     NSString *data = payload.dictionaryPayload[@"data"];
     NSLog(@"[objC] received data: %@", data);
     
     NSMutableDictionary* results = [NSMutableDictionary dictionaryWithCapacity:2];
-    [results setObject:message forKey:@"function"];
     [results setObject:data forKey:@"extra"];
     
     @try {
