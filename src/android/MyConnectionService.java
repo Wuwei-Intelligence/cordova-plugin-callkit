@@ -56,6 +56,7 @@ public class MyConnectionService extends ConnectionService {
                 data.putString("messageType", "voip");
                 data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
                 data.putString("action", "IncomingCall");
+                data.putString("title", request.getExtras().getString("from"));
                 data.putString("session_id", request.getExtras().getString("android_voip_session_id"));
                 data.putString("token", request.getExtras().getString("android_voip_token"));
                 data.putString("pickup_url", request.getExtras().getString("android_voip_callback_pickup_url"));
