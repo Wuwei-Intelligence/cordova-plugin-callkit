@@ -294,8 +294,9 @@ NSMutableDictionary *callsDictionary;
             CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
             [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
                 if (error == nil) {
+                    NSLog(@"[obj C] end Call Success");
                 } else {
-                    NSLog(@"%@",[error localizedDescription]);
+                    NSLog(@"[obj C] end Call Error%@",[error localizedDescription]);
                 }
             }];
         }
@@ -525,12 +526,14 @@ NSMutableDictionary *callsDictionary;
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
                 }
             } else {
-                NSDictionary* _data = [callsDictionary objectForKey:action.callUUID.UUIDString];
-                if (_data != nil) {
-                    NSString* _reject = [_data objectForKey:@"needReject"];
-                    NSDictionary* _notificationData = [_data objectForKey:@"notificationData"];
-                    if ([_reject isEqualToString:@"Yes"] && _notificationData != nil) {
-                        [self rejectCall:[_notificationData objectForKey:@"notification_ios_voip_callback_reject_url"] sessionId: [_notificationData objectForKey:@"notification_ios_voip_session_id"]];
+                if (callsDictionary != nil) {
+                    NSDictionary* _data = [callsDictionary objectForKey:action.callUUID.UUIDString];
+                    if (_data != nil) {
+                        NSString* _reject = [_data objectForKey:@"needReject"];
+                        NSDictionary* _notificationData = [_data objectForKey:@"notificationData"];
+                        if ([_reject isEqualToString:@"Yes"] && _notificationData != nil) {
+                            [self rejectCall:[_notificationData objectForKey:@"notification_ios_voip_callback_reject_url"] sessionId: [_notificationData objectForKey:@"notification_ios_voip_session_id"]];
+                        }
                     }
                 }
 
@@ -541,9 +544,12 @@ NSMutableDictionary *callsDictionary;
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
                 }
             }
-            [callsDictionary removeObjectForKey:_call.UUID.UUIDString];
-            if ([callsDictionary allKeys].count == 0) {
-                callsDictionary = nil;
+            
+            if (callsDictionary != nil) {
+                [callsDictionary removeObjectForKey:_call.UUID.UUIDString];
+                if ([callsDictionary allKeys].count == 0) {
+                    callsDictionary = nil;
+                }
             }
             break;
         }
@@ -620,16 +626,16 @@ didReceiveIncomingPushWithPayload:(PKPushPayload *)payload
              forType:(PKPushType)type
 withCompletionHandler:(void (^)(void))completion
 {
-    NSDictionary *payloadDict = payload.dictionaryPayload[@"aps"];
-    NSLog(@"[objC] didReceiveIncomingPushWithPayload: %@", payloadDict);
-    
-    NSString *data = payload.dictionaryPayload[@"data"];
-    NSLog(@"[objC] received data: %@", data);
-    
-    NSMutableDictionary* results = [NSMutableDictionary dictionaryWithCapacity:2];
-    [results setObject:data forKey:@"extra"];
-    
     @try {
+        NSDictionary *payloadDict = payload.dictionaryPayload[@"aps"];
+        NSLog(@"[objC] didReceiveIncomingPushWithPayload: %@", payloadDict);
+        
+        NSString *data = payload.dictionaryPayload[@"data"];
+        NSLog(@"[objC] received data: %@", data);
+        
+        NSMutableDictionary* results = [NSMutableDictionary dictionaryWithCapacity:2];
+        [results setObject:data forKey:@"extra"];
+        
         NSError* error;
         NSDictionary* json = [NSJSONSerialization JSONObjectWithData:[data dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
         
@@ -644,15 +650,22 @@ withCompletionHandler:(void (^)(void))completion
         callUpdate.supportsHolding = NO;
         callUpdate.supportsDTMF = enableDTMF;
 
+        NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
         NSLog(@"[objC] pushRegistry 1");
         [self.provider reportNewIncomingCallWithUUID:callUUID update:callUpdate completion:^(NSError * _Nullable error) {
+            NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
             if(error == nil) {
                 NSLog(@"[objC] pushRegistry 2");
                 CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:callUUID];
                 CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
                 [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+                    if(error != nil) {
+                        NSLog(@"Failed to report end call successfully: %@.", [error localizedDescription]);
+                    }
+                    
                     NSLog(@"[objC] pushRegistry 3");
                     NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
+                    NSLog(@"[obj C] _action: %@", _action);
                     if (_action != nil) {
                         NSLog(@"[objC] pushRegistry 4");
                         pickupUrl = [json objectForKey:@"notification_ios_voip_callback_pickup_url"];
@@ -690,6 +703,8 @@ withCompletionHandler:(void (^)(void))completion
                     }
                     
                 }];
+            } else {
+                NSLog(@"Failed to report incoming call successfully: %@.", [error localizedDescription]);
             }
             // Tell PushKit that the notification is handled.
             completion();
@@ -699,7 +714,7 @@ withCompletionHandler:(void (^)(void))completion
        NSLog(@"[objC] error: %@", exception.reason);
     }
     @finally {
-        completion();
+        //
     }
 }
 
