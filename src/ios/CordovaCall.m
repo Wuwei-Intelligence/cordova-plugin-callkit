@@ -653,61 +653,68 @@ withCompletionHandler:(void (^)(void))completion
         NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
         NSLog(@"[objC] pushRegistry 1");
         [self.provider reportNewIncomingCallWithUUID:callUUID update:callUpdate completion:^(NSError * _Nullable error) {
-            NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
-            if(error == nil) {
-                NSLog(@"[objC] pushRegistry 2");
-                CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:callUUID];
-                CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
-                [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
-                    if(error != nil) {
-                        NSLog(@"Failed to report end call successfully: %@.", [error localizedDescription]);
-                    }
-                    
-                    NSLog(@"[objC] pushRegistry 3");
-                    NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
-                    NSLog(@"[obj C] _action: %@", _action);
-                    if (_action != nil) {
-                        NSLog(@"[objC] pushRegistry 4");
-                        pickupUrl = [json objectForKey:@"notification_ios_voip_callback_pickup_url"];
-                        hangupUrl = [json objectForKey:@"notification_ios_voip_callback_hangup_url"];
-                        rejectUrl = [json objectForKey:@"notification_ios_voip_callback_reject_url"];
-
-                        if ([_action isEqual:@"IncomingCall"]) {
-                            NSLog(@"[objC] pushRegistry 5");
-                            NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_ios_voip_session_id"], json, nil];
-                            CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
-                            if (callsDictionary == nil) {
-                                NSLog(@"[objC] pushRegistry 6");
-                                [self receiveCall:newCommand];
-                                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
-                                [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
-                                [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
-                            }
+            @try {
+                NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
+                if(error == nil) {
+                    NSLog(@"[objC] pushRegistry 2");
+                    CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:callUUID];
+                    CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
+                    [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+                        if(error != nil) {
+                            NSLog(@"Failed to report end call successfully: %@.", [error localizedDescription]);
                         }
-                        if ([_action isEqual:@"CutOffCall"]) {
-                            NSLog(@"[objC] pushRegistry 7");
-                            for (NSString* _uuid in callsDictionary) {
-                                NSLog(@"[objC] pushRegistry 8");
-                                NSMutableDictionary* _data = [callsDictionary objectForKey:_uuid];
-                                NSMutableDictionary* _notificationData = [_data objectForKey:@"notificationData"];
-                                NSString* _session_id = [_notificationData objectForKey:@"notification_ios_voip_session_id"];
-                                if ([_session_id isEqualToString:[json objectForKey:@"notification_ios_voip_session_id"]]) {
-                                    NSLog(@"[objC] pushRegistry 9");
-                                    [_data setObject:@"No" forKey:@"needReject"];
-                                    CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:nil callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
-                                    [self endCall:newCommand];
-                                    break;
+                        
+                        NSLog(@"[objC] pushRegistry 3");
+                        NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
+                        NSLog(@"[obj C] _action: %@", _action);
+                        if (_action != nil) {
+                            NSLog(@"[objC] pushRegistry 4");
+                            pickupUrl = [json objectForKey:@"notification_ios_voip_callback_pickup_url"];
+                            hangupUrl = [json objectForKey:@"notification_ios_voip_callback_hangup_url"];
+                            rejectUrl = [json objectForKey:@"notification_ios_voip_callback_reject_url"];
+
+                            if ([_action isEqual:@"IncomingCall"]) {
+                                NSLog(@"[objC] pushRegistry 5");
+                                NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_ios_voip_session_id"], json, nil];
+                                CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
+                                if (callsDictionary == nil) {
+                                    NSLog(@"[objC] pushRegistry 6");
+                                    [self receiveCall:newCommand];
+                                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
+                                    [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+                                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
+                                }
+                            }
+                            if ([_action isEqual:@"CutOffCall"]) {
+                                NSLog(@"[objC] pushRegistry 7");
+                                for (NSString* _uuid in callsDictionary) {
+                                    NSLog(@"[objC] pushRegistry 8");
+                                    NSMutableDictionary* _data = [callsDictionary objectForKey:_uuid];
+                                    NSMutableDictionary* _notificationData = [_data objectForKey:@"notificationData"];
+                                    NSString* _session_id = [_notificationData objectForKey:@"notification_ios_voip_session_id"];
+                                    if ([_session_id isEqualToString:[json objectForKey:@"notification_ios_voip_session_id"]]) {
+                                        NSLog(@"[objC] pushRegistry 9");
+                                        [_data setObject:@"No" forKey:@"needReject"];
+                                        CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:nil callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
+                                        [self endCall:newCommand];
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }
-                    
-                }];
-            } else {
-                NSLog(@"Failed to report incoming call successfully: %@.", [error localizedDescription]);
+                        
+                    }];
+                } else {
+                    NSLog(@"Failed to report incoming call successfully: %@.", [error localizedDescription]);
+                }
             }
-            // Tell PushKit that the notification is handled.
-            completion();
+            @catch (NSException *exception) {
+                NSLog(@"[objC] reportNewIncomingCallWithUUID error: %@", exception.reason);
+            }
+            @finally {
+                // Tell PushKit that the notification is handled.
+                completion();
+            }
         }];
     }
     @catch (NSException *exception) {
