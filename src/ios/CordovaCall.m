@@ -249,9 +249,11 @@ NSMutableDictionary *callsDictionary;
             callsDictionary = [[NSMutableDictionary alloc] init];
             NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
             [data setObject:@"No" forKey:@"needReject"];
+            NSDictionary *callsData = @{@"notification_ios_voip_session_id":callId};
+            [data setObject:callsData forKey:@"notificationData"];
             [callsDictionary setObject:data forKey:callUUID.UUIDString];
-
-            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callId];
+            
+            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callName];
             CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
             startCallAction.contactIdentifier = callName;
             startCallAction.video = hasVideo;
@@ -627,6 +629,9 @@ didReceiveIncomingPushWithPayload:(PKPushPayload *)payload
 withCompletionHandler:(void (^)(void))completion
 {
     @try {
+        NSLog(@"[objc] Test: ");
+        NSLog(@"%@", payload.dictionaryPayload[@"handle"]);
+        
         NSDictionary *payloadDict = payload.dictionaryPayload[@"aps"];
         NSLog(@"[objC] didReceiveIncomingPushWithPayload: %@", payloadDict);
         
