@@ -260,6 +260,7 @@ NSMutableDictionary *callsDictionary;
             CXTransaction *transaction = [[CXTransaction alloc] initWithAction:startCallAction];
             [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
                 if (error == nil) {
+                    [self.provider reportOutgoingCallWithUUID:callUUID connectedAtDate:nil];
                     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Outgoing call successful"] callbackId:command.callbackId];
                 } else {
                     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]] callbackId:command.callbackId];
