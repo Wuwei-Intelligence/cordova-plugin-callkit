@@ -65,7 +65,7 @@ public class MyConnectionService extends ConnectionService {
                 //
                 Intent activityIntent = new Intent();
                 activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                activityIntent.setAction("city.waffle.intercom.action.notification");
+                activityIntent.setAction("city.waffle.intercom.action.notification.mgr");
                 //
                 FirebasePlugin.sendMessage(data, MyConnectionService.this.getApplicationContext());
                 MyConnectionService.this.getApplicationContext().startActivity(activityIntent);

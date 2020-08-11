@@ -35,7 +35,7 @@
 
         <config-file parent="application/activity" target="AndroidManifest.xml">
             <intent-filter>
-                <action android:name="city.waffle.intercom.action.notification" />
+                <action android:name="city.waffle.intercom.action.notification.mgr" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </config-file>
