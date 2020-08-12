@@ -660,6 +660,7 @@ withCompletionHandler:(void (^)(void))completion
         NSLog(@"[objC] pushRegistry 1");
         [self.provider reportNewIncomingCallWithUUID:callUUID update:callUpdate completion:^(NSError * _Nullable error) {
             @try {
+                completion();
                 NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
                 if(error == nil) {
                     NSLog(@"[objC] pushRegistry 2");
@@ -719,7 +720,7 @@ withCompletionHandler:(void (^)(void))completion
             }
             @finally {
                 // Tell PushKit that the notification is handled.
-                completion();
+                // completion();
             }
         }];
     }
