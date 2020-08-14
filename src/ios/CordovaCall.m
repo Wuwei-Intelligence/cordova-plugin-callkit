@@ -728,7 +728,7 @@ withCompletionHandler:(void (^)(void))completion
        NSLog(@"[objC] error: %@", exception.reason);
     }
     @finally {
-        completion();
+        // completion();
     }
 }
 
