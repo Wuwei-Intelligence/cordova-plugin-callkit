@@ -646,7 +646,7 @@ withCompletionHandler:(void (^)(void))completion
         NSDictionary* json = [NSJSONSerialization JSONObjectWithData:[data dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
         
         NSUUID *callUUID = [[NSUUID alloc] init];
-        CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:@""];
+        CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:@"1"];
         CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
         callUpdate.remoteHandle = handle;
         callUpdate.hasVideo = hasVideo;
@@ -728,7 +728,7 @@ withCompletionHandler:(void (^)(void))completion
        NSLog(@"[objC] error: %@", exception.reason);
     }
     @finally {
-        //
+        completion();
     }
 }
 
