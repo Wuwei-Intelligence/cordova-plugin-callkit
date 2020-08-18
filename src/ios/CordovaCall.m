@@ -29,7 +29,7 @@ NSMutableDictionary *callsDictionary;
     providerConfiguration.maximumCallGroups = 1;
     providerConfiguration.maximumCallsPerCallGroup = 1;
     NSMutableSet *handleTypes = [[NSMutableSet alloc] init];
-    [handleTypes addObject:@(CXHandleTypePhoneNumber)];
+    [handleTypes addObject:@(CXHandleTypeGeneric)];
     providerConfiguration.supportedHandleTypes = handleTypes;
     providerConfiguration.supportsVideo = YES;
     if (@available(iOS 11.0, *)) {
@@ -72,7 +72,7 @@ NSMutableDictionary *callsDictionary;
         providerConfiguration.iconTemplateImageData = iconData;
     }
     NSMutableSet *handleTypes = [[NSMutableSet alloc] init];
-    [handleTypes addObject:@(CXHandleTypePhoneNumber)];
+    [handleTypes addObject:@(CXHandleTypeGeneric)];
     providerConfiguration.supportedHandleTypes = handleTypes;
     providerConfiguration.supportsVideo = hasVideo;
     if (@available(iOS 11.0, *)) {
@@ -197,7 +197,7 @@ NSMutableDictionary *callsDictionary;
             [data setObject:[command.arguments objectAtIndex:2] forKey:@"notificationData"];
             [callsDictionary setObject:data forKey:callUUID.UUIDString];
 
-            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callId];
+            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:callId];
             CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
             callUpdate.remoteHandle = handle;
             callUpdate.hasVideo = hasVideo;
@@ -253,7 +253,7 @@ NSMutableDictionary *callsDictionary;
             [data setObject:callsData forKey:@"notificationData"];
             [callsDictionary setObject:data forKey:callUUID.UUIDString];
             
-            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callName];
+            CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:callName];
             CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
             startCallAction.contactIdentifier = callName;
             startCallAction.video = hasVideo;
@@ -419,7 +419,7 @@ NSMutableDictionary *callsDictionary;
     NSString* callID = notification.object[@"callId"];
     NSString* callName = notification.object[@"callName"];
     NSUUID *callUUID = [[NSUUID alloc] init];
-    CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:callID];
+    CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:callID];
     CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
     startCallAction.video = [notification.object[@"isVideo"] boolValue]?YES:NO;
     startCallAction.contactIdentifier = callName;
