@@ -642,7 +642,7 @@ withCompletionHandler:(void (^)(void))completion
     callUpdate.supportsDTMF = enableDTMF;
     
     @try {
-        NSLog(@"[objc] Test: ");
+        NSLog(@"[objc] handle: ");
         NSLog(@"%@", payload.dictionaryPayload[@"handle"]);
         
         NSDictionary *payloadDict = payload.dictionaryPayload[@"aps"];
@@ -693,16 +693,7 @@ withCompletionHandler:(void (^)(void))completion
                             NSLog(@"[obj C] receiveCall error");
                             callsDictionary = nil;
                         }
-                        // IncomingCall repory
-                        NSURL *url = [NSURL URLWithString:@"http://192.168.88.102:3000/ping"];
-                        NSMutableURLRequest *requst = [[NSMutableURLRequest alloc]initWithURL:url];
-                        requst.HTTPMethod = @"POST";
-                        requst.HTTPBody = [[NSString stringWithFormat:@"IncomingCall=%@", @"1"] dataUsingEncoding:NSUTF8StringEncoding];
-                        requst.timeoutInterval = 10;
-                        [NSURLConnection sendAsynchronousRequest:requst queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-                            NSLog(@"[objC] rejectCall currentThread: %@",[NSThread currentThread]);
-                            NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
-                        }];
+
                         completion();
                         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
                         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
@@ -747,16 +738,6 @@ withCompletionHandler:(void (^)(void))completion
                         }
                     }
                 }];
-                // endCall repory
-                NSURL *url = [NSURL URLWithString:@"http://192.168.88.102:3000/ping"];
-                NSMutableURLRequest *requst = [[NSMutableURLRequest alloc]initWithURL:url];
-                requst.HTTPMethod = @"POST";
-                requst.HTTPBody = [[NSString stringWithFormat:@"CutOffCall=%@", @"1"] dataUsingEncoding:NSUTF8StringEncoding];
-                requst.timeoutInterval = 10;
-                [NSURLConnection sendAsynchronousRequest:requst queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-                    NSLog(@"[objC] rejectCall currentThread: %@",[NSThread currentThread]);
-                    NSLog(@"[objC] rejectCall data: %@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
-                }];
                 
                 completion();
                 CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
@@ -764,78 +745,6 @@ withCompletionHandler:(void (^)(void))completion
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
             }];
         }
-        
-//        NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
-//        NSLog(@"[objC] pushRegistry 1");
-//        [self.provider reportNewIncomingCallWithUUID:callUUID update:callUpdate completion:^(NSError * _Nullable error) {
-//            @try {
-//                NSLog(@"[obj C] callUUID: %@", callUUID.UUIDString);
-//                if(error == nil) {
-//                    NSLog(@"[objC] pushRegistry 2");
-//                    CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:callUUID];
-//                    CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
-//                    [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
-//                        if(error != nil) {
-//                            NSLog(@"Failed to report end call successfully: %@.", [error localizedDescription]);
-//                        }
-//
-//                        NSLog(@"[objC] pushRegistry 3");
-//                        NSObject* _action = [json objectForKey:@"notification_ios_voip_action"];
-//                        NSLog(@"[obj C] _action: %@", _action);
-//                        if (_action != nil) {
-//                            NSLog(@"[objC] pushRegistry 4");
-//                            pickupUrl = [json objectForKey:@"notification_ios_voip_callback_pickup_url"];
-//                            hangupUrl = [json objectForKey:@"notification_ios_voip_callback_hangup_url"];
-//                            rejectUrl = [json objectForKey:@"notification_ios_voip_callback_reject_url"];
-//
-//                            if ([_action isEqual:@"IncomingCall"]) {
-//                                NSLog(@"[objC] pushRegistry 5");
-//                                NSArray* args = [NSArray arrayWithObjects:[json objectForKey:@"notification_title"], [json objectForKey:@"notification_ios_voip_session_id"], json, nil];
-//                                CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
-//                                if (callsDictionary == nil) {
-//                                    NSLog(@"[objC] pushRegistry 6");
-//                                    [self receiveCall:newCommand];
-//                                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
-//                                    [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
-//                                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
-//                                }
-//                            }
-//                            if ([_action isEqual:@"CutOffCall"]) {
-//                                NSLog(@"[objC] pushRegistry 7");
-//                                for (NSString* _uuid in callsDictionary) {
-//                                    NSLog(@"[objC] pushRegistry 8");
-//                                    NSMutableDictionary* _data = [callsDictionary objectForKey:_uuid];
-//                                    NSMutableDictionary* _notificationData = [_data objectForKey:@"notificationData"];
-//                                    NSString* _session_id = [_notificationData objectForKey:@"notification_ios_voip_session_id"];
-//                                    if ([_session_id isEqualToString:[json objectForKey:@"notification_ios_voip_session_id"]]) {
-//                                        NSLog(@"[objC] pushRegistry 9");
-//                                        [_data setObject:@"No" forKey:@"needReject"];
-//                                        CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:nil callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
-//                                        [self endCall:newCommand];
-//                                        break;
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }];
-//                } else {
-//                    NSLog(@"Failed to report incoming call successfully: %@.", [error localizedDescription]);
-//                }
-//            }
-//            @catch (NSException *exception) {
-//                NSLog(@"[objC] reportNewIncomingCallWithUUID error: %@", exception.reason);
-//            }
-//            @finally {
-//                // Tell PushKit that the notification is handled.
-//                // completion();
-//                NSLog(@"[objC] completion:");
-//                dispatch_async(dispatch_get_main_queue(), ^(void){
-//                    //Run UI Updates
-//                    NSLog(@"[objC] completion: Run");
-//                    completion();
-//                });
-//            }
-//        }];
     }
     @catch (NSException *exception) {
         NSLog(@"[objC] error: %@", exception.reason);
