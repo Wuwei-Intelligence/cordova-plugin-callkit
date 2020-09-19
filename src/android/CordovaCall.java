@@ -74,6 +74,16 @@ public class CordovaCall extends CordovaPlugin {
         return instance;
     }
 
+    private static Boolean isSendCall = false;
+
+    public static Boolean getIsSendCall() {
+        return isSendCall;
+    }
+
+    public static void setIsSendCall(boolean val) {
+        isSendCall = val;
+    }
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         cordovaInterface = cordova;
@@ -129,34 +139,16 @@ public class CordovaCall extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("sendCall")) {
-            MyConnectionService.setIsSendCall(true);
+            setIsSendCall(true);
             this.callbackContext.success("Outgoing call successful");
             return true;
         } else if (action.equals("connectCall")) {
-            Connection conn = MyConnectionService.getConnection();
-            if (conn == null) {
-                this.callbackContext.error("No call exists for you to connect");
-            } else if (conn.getState() == Connection.STATE_ACTIVE) {
-                this.callbackContext.error("Your call is already connected");
-            } else {
-                conn.setActive();
-                Intent intent = new Intent(this.cordova.getActivity().getApplicationContext(),
-                        this.cordova.getActivity().getClass());
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                this.cordova.getActivity().getApplicationContext().startActivity(intent);
-                this.callbackContext.success("Call connected successfully");
-            }
+            this.callbackContext.success("Call connected successfully");
             return true;
         } else if (action.equals("endCall")) {
-            Boolean isSendCall = MyConnectionService.getIsSendCall();
-            if (isSendCall) MyConnectionService.setIsSendCall(false);
+            if (isSendCall) setIsSendCall(false);
             Connection conn = MyConnectionService.getConnection();
-            if (conn == null) {
-                this.callbackContext.error("No call exists for you to end");
-            } else {
-                conn.onDisconnect();
-                this.callbackContext.success("Call ended successfully");
-            }
+            this.callbackContext.success("Call ended successfully");
             return true;
         } else if (action.equals("registerEvent")) {
             String eventType = args.getString(0);

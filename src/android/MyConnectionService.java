@@ -26,7 +26,6 @@ public class MyConnectionService extends ConnectionService {
 
     private static String TAG = "MyConnectionService";
     private static Connection conn;
-    private static Boolean isSendCall = false;
 
     public static Connection getConnection() {
         return conn;
@@ -34,14 +33,6 @@ public class MyConnectionService extends ConnectionService {
 
     public static void deinitConnection() {
         conn = null;
-    }
-
-    public static Boolean getIsSendCall() {
-        return isSendCall;
-    }
-
-    public static void setIsSendCall(boolean val) {
-        isSendCall = val;
     }
 
     @Override
@@ -76,7 +67,7 @@ public class MyConnectionService extends ConnectionService {
                 String sessionid = request.getExtras().getString("android_voip_session_id");
                 String reject_url = request.getExtras().getString("android_voip_callback_reject_url");
                 new HttpURLConnectionPost().execute(reject_url, sessionid);
- 
+
                 DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
                 this.setDisconnected(cause);
                 this.destroy();
