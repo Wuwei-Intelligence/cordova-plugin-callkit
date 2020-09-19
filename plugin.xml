@@ -25,12 +25,6 @@
         </config-file>
 
         <config-file parent="/manifest/application" target="AndroidManifest.xml">
-            <service android:name="com.dmarc.cordovacall.MyConnectionService"
-                    android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
-                <intent-filter>
-                    <action android:name="android.telecom.ConnectionService" />
-                </intent-filter>
-            </service>
         </config-file>
 
         <config-file parent="application/activity" target="AndroidManifest.xml">
@@ -41,7 +35,6 @@
         </config-file>
 
         <source-file src="src/android/CordovaCall.java" target-dir="src/com/dmarc/cordovacall" />
-        <source-file src="src/android/MyConnectionService.java" target-dir="src/com/dmarc/cordovacall" />
         <source-file src="src/android/HttpURLConnectionPost.java" target-dir="src/com/dmarc/cordovacall" />
   </platform>
 
