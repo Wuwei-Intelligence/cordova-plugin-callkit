@@ -147,7 +147,6 @@ public class CordovaCall extends CordovaPlugin {
             return true;
         } else if (action.equals("endCall")) {
             if (isSendCall) setIsSendCall(false);
-            Connection conn = MyConnectionService.getConnection();
             this.callbackContext.success("Call ended successfully");
             return true;
         } else if (action.equals("registerEvent")) {
