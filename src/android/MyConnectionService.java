@@ -40,62 +40,16 @@ public class MyConnectionService extends ConnectionService {
         final Connection connection = new Connection() {
 
             @Override
-            public void onAnswer() {
-                this.setActive();
-                //
-                Bundle data = new Bundle();
-                data.putString("messageType", "voip");
-                data.putString("tap", FirebasePlugin.inBackground() ? "background" : "foreground");
-                data.putString("action", "IncomingCall");
-                data.putString("title", request.getExtras().getString("from"));
-                data.putString("session_id", request.getExtras().getString("android_voip_session_id"));
-                data.putString("token", request.getExtras().getString("android_voip_token"));
-                data.putString("pickup_url", request.getExtras().getString("android_voip_callback_pickup_url"));
-                data.putString("hangup_url", request.getExtras().getString("android_voip_callback_hangup_url"));
-                data.putString("reject_url", request.getExtras().getString("android_voip_callback_reject_url"));
-                //
-                Intent activityIntent = new Intent();
-                activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                activityIntent.setAction("city.waffle.intercom.action.notification");
-                //
-                FirebasePlugin.sendMessage(data, MyConnectionService.this.getApplicationContext());
-                MyConnectionService.this.getApplicationContext().startActivity(activityIntent);
-            }
+            public void onAnswer() { }
 
             @Override
-            public void onReject() {
-                String sessionid = request.getExtras().getString("android_voip_session_id");
-                String reject_url = request.getExtras().getString("android_voip_callback_reject_url");
-                new HttpURLConnectionPost().execute(reject_url, sessionid);
-
-                DisconnectCause cause = new DisconnectCause(DisconnectCause.REJECTED);
-                this.setDisconnected(cause);
-                this.destroy();
-                conn = null;
-            }
+            public void onReject() { }
 
             @Override
             public void onAbort() { }
 
             @Override
-            public void onDisconnect() {
-                DisconnectCause cause = new DisconnectCause(DisconnectCause.LOCAL);
-                this.setDisconnected(cause);
-                this.destroy();
-                conn = null;
-                if (CordovaCall.getCordova() != null) {
-                    ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("hangup");
-                    for (final CallbackContext callbackContext : callbackContexts) {
-                        CordovaCall.getCordova().getThreadPool().execute(new Runnable() {
-                            public void run() {
-                                PluginResult result = new PluginResult(PluginResult.Status.OK, "hangup event called successfully");
-                                result.setKeepCallback(true);
-                                callbackContext.sendPluginResult(result);
-                            }
-                        });
-                    }
-                }
-            }
+            public void onDisconnect() { }
         };
         connection.setAddress(Uri.parse(request.getExtras().getString("from")), TelecomManager.PRESENTATION_ALLOWED);
         Icon icon = CordovaCall.getIcon();
