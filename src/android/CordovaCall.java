@@ -121,19 +121,10 @@ public class CordovaCall extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         this.callbackContext = callbackContext;
         if (action.equals("receiveCall")) {
-            Connection conn = MyConnectionService.getConnection();
-            if (conn != null) {
-                if (conn.getState() == Connection.STATE_ACTIVE) {
-                    this.callbackContext.error("You can't receive a call right now because you're already in a call");
-                } else {
-                    this.callbackContext.error("You can't receive a call right now");
-                }
-            } else {
-                from = args.getString(0);
-                permissionCounter = 2;
-                pendingAction = "receiveCall";
-                this.checkCallPermission();
-            }
+            from = args.getString(0);
+            permissionCounter = 2;
+            pendingAction = "receiveCall";
+            this.checkCallPermission();
             return true;
         } else if (action.equals("sendCall")) {
             setIsSendCall(true);
