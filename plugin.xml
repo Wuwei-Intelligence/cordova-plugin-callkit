@@ -11,7 +11,7 @@
     </js-module>
 
     <platform name="android">
-        <config-file parent="/*" target="res/xml/config.xml">
+        <!-- <config-file parent="/*" target="res/xml/config.xml">
             <feature name="CordovaCall">
                 <param name="android-package" value="com.dmarc.cordovacall.CordovaCall" />
                 <param name="onload" value="true" />
@@ -40,8 +40,8 @@
         </config-file>
 
         <source-file src="src/android/CordovaCall.java" target-dir="src/com/dmarc/cordovacall" />
-        <source-file src="src/android/MyConnectionService.java" target-dir="src/com/dmarc/cordovacall" />
-        <source-file src="src/android/HttpURLConnectionPost.java" target-dir="src/com/dmarc/cordovacall" />
+        <source-file src="src/android/HttpURLConnectionPost.java" target-dir="src/com/dmarc/cordovacall" /> -->
+
   </platform>
 
     <platform name="ios">
