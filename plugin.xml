@@ -20,8 +20,8 @@
 
         <config-file parent="/*" target="AndroidManifest.xml">
             <uses-permission android:name="android.permission.BIND_TELECOM_CONNECTION_SERVICE"/>
-            <!-- <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
-            <uses-permission android:name="android.permission.CALL_PHONE"/> -->
+            <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+            <uses-permission android:name="android.permission.CALL_PHONE"/>
         </config-file>
 
         <config-file parent="/manifest/application" target="AndroidManifest.xml">
@@ -41,6 +41,7 @@
         </config-file>
 
         <source-file src="src/android/CordovaCall.java" target-dir="src/com/dmarc/cordovacall" />
+        <source-file src="src/android/MyConnectionService.java" target-dir="src/com/dmarc/cordovacall" />
         <source-file src="src/android/HttpURLConnectionPost.java" target-dir="src/com/dmarc/cordovacall" />
     </platform>
 
