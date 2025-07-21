@@ -20,6 +20,9 @@
     }
     INPersonHandle *personHandle = contact.personHandle;
     NSString *callId = personHandle.value;
+
+    if (!callId) return NO; // 核心條件不符，不處理
+
     NSString *callName = [[NSUserDefaults standardUserDefaults] stringForKey:callId];
     if(!callName) {
         callName = callId;
