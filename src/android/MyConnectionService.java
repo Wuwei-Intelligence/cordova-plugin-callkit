@@ -37,6 +37,13 @@ public class MyConnectionService extends ConnectionService {
 
     @Override
     public Connection onCreateIncomingConnection(final PhoneAccountHandle connectionManagerPhoneAccount, final ConnectionRequest request) {
+        String sessionid = request.getExtras().getString("android_voip_session_id");
+        if (sessionid == null) {
+            Connection connection = new Connection() {};
+            connection.setDisconnected(new DisconnectCause(DisconnectCause.REJECTED));
+            connection.destroy();
+            return connection;
+        }
         final Connection connection = new Connection() {
 
             @Override
