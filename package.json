@@ -21,9 +21,17 @@
     "pushkit",
     "ecosystem:cordova",
     "cordova-android",
-    "cordova-ios"
+    "cordova-ios",
+    "deeplink",
+    "deeplinks"
   ],
   "homepage": "https://github.com/mattkhaw/cordova-plugin-callkit",
   "author": "Matthew Khaw",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "mkpath": ">=1.0.0",
+    "xml2js": ">=0.4",
+    "node-version-compare": ">=1.0.1",
+    "plist": ">=1.2.0"
+  }
 }

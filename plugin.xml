@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <plugin id="cordova-plugin-callkit" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
-    <name>Cordova CallKit</name>
+    <name>Cordova CallKit + Deeplinks</name>
 
     <js-module name="VoIPPushNotification" src="www/VoIPPushNotification.js">
         <clobbers target="VoIPPushNotification" />
@@ -8,6 +8,10 @@
 
     <js-module name="CordovaCall" src="www/CordovaCall.js">
         <clobbers target="cordova.plugins.CordovaCall" />
+    </js-module>
+
+    <js-module name="deeplink" src="www/deeplink.js">
+        <clobbers target="IonicDeeplink" />
     </js-module>
 
     <platform name="android">
@@ -37,6 +41,14 @@
         <source-file src="src/android/CordovaCall.java" target-dir="src/com/dmarc/cordovacall" />
         <source-file src="src/android/MyConnectionService.java" target-dir="src/com/dmarc/cordovacall" />
         <source-file src="src/android/HttpURLConnectionPost.java" target-dir="src/com/dmarc/cordovacall" />
+
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="IonicDeeplinkPlugin">
+                <param name="android-package" value="io.ionic.links.IonicDeeplink" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <source-file src="src/android/io/ionic/links/IonicDeeplink.java" target-dir="src/io/ionic/deeplink" />
     </platform>
 
     <platform name="ios">
@@ -62,5 +74,13 @@
 
         <framework src="PushKit.framework" />
         <framework src="CallKit.framework" />
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="IonicDeeplinkPlugin">
+                <param name="ios-package" value="IonicDeeplinkPlugin" onload="true" />
+            </feature>
+        </config-file>
+        <header-file src="src/ios/IonicDeeplinkPlugin.h" />
+        <source-file src="src/ios/IonicDeeplinkPlugin.m" />
     </platform>
 </plugin>
